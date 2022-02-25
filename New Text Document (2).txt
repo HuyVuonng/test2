@@ -1,0 +1,149 @@
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
+
+namespace Bai4_TH
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void btnNhap_Click(object sender, EventArgs e)
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["lienKetSQl"].ConnectionString;
+            using (SqlConnection Cnn = new SqlConnection(connectionString))
+            {
+                using (SqlCommand cmd = new SqlCommand("themKH", Cnn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@hoTen", txtHoTen.Text);
+                    cmd.Parameters.AddWithValue("@ngaysinh",dateTimePicker1.Value);
+                    cmd.Parameters.AddWithValue("@sdt", txtDienThoai.Text);
+                    cmd.Parameters.AddWithValue("@diachi", txtDiaChi.Text);
+                    cmd.Parameters.AddWithValue("@tencoquan", txtTenCoQuan.Text);
+                    cmd.Parameters.AddWithValue("@gioitinh", '1');
+                    Cnn.Open();
+                    int n = cmd.ExecuteNonQuery();
+                    Cnn.Close();
+                    if (n > 0)
+                    {
+                        MessageBox.Show("Them Thanh Cong!!");
+                    }
+
+                    //using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                    //{
+                    //    DataTable Khtable = new DataTable("tblKhachHang");
+                    //    da.Fill(Khtable);
+                    //    if (Khtable.Rows.Count == 0)
+                    //    {
+                    //        MessageBox.Show("Chua co du lieu");
+                    //    }
+                    //    else
+                    //    {
+
+
+
+                    //        for (int i = 0; i < Khtable.Rows.Count; i++)
+                    //        {
+
+                    //            DataRow r = Khtable.Rows[i];
+
+
+
+                    //        }
+
+                    //    }
+
+                    //    #region Ghi nhận dữ liệu
+
+
+
+
+                    //    DataView dv = new DataView(Khtable);
+                    //    DataRow newKH = Khtable.NewRow();
+
+                    //    newKH["sHoTen"] = txtHoTen.Text;
+
+                    //    newKH["dNgaySinh"] = dateTimePicker1.Text.ToString();
+
+                    //    newKH["sDienThoai"] = txtDienThoai.Text;
+
+                    //    newKH["sDiaChi"] = txtDiaChi.Text;
+
+                    //    newKH["sTenCoQuan"] = txtTenCoQuan.Text;
+
+                    //    newKH["bGioiTinh"] = '1';
+
+                    //    Khtable.Rows.Add(newKH);
+                    //    #endregion
+                    //    #region Thêm vào command
+                    //    SqlCommand insertCMD = new SqlCommand("themKH", Cnn);
+                    //    insertCMD.CommandType = CommandType.StoredProcedure;
+                    //    insertCMD.Parameters.Add("@hoTen", SqlDbType.NVarChar, 50).SourceColumn = "sHoTen";
+                    //    insertCMD.Parameters.Add("@ngaysinh", SqlDbType.Date).SourceColumn = "dNgaySinh";
+                    //    insertCMD.Parameters.Add("@sdt", SqlDbType.NChar, 12).SourceColumn = "sDienThoai";
+                    //    insertCMD.Parameters.Add("@diachi", SqlDbType.NVarChar, 50).SourceColumn = "sDiaChi";
+                    //    insertCMD.Parameters.Add("@tencoquan", SqlDbType.NVarChar, 50).SourceColumn = "sTenCoQuan";
+                    //    insertCMD.Parameters.Add("@gioitinh", SqlDbType.Bit).SourceColumn = "bGioiTinh";
+
+                    //    da.InsertCommand = insertCMD;
+                    //    Console.WriteLine("Them thanh cong");
+                    //    #endregion
+
+
+
+                    //    #region update datatable to DB
+                    //    DataTable t = Khtable.GetChanges();
+                    //    da.Update(t);
+                    //    if (!t.HasErrors)
+                    //        t.AcceptChanges();
+                    //    #endregion
+                    //}
+                }
+            }
+        }
+
+        private DataTable getKh()
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["lienKetSQl"].ConnectionString;
+            using (SqlConnection Cnn = new SqlConnection(connectionString))
+            {
+                using (SqlCommand cmd = new SqlCommand("layKh", Cnn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    using (SqlDataAdapter Da = new SqlDataAdapter(cmd))
+                    {
+                        DataTable tbl = new DataTable("tblKH");
+                        Da.Fill(tbl);
+                        Cnn.Open();
+                        return tbl;
+                    }
+                }
+            }
+
+        }
+        private void hienKH()
+        {
+            DataTable t = getKh();
+            dataGridView1.AutoGenerateColumns=false;
+            dataGridView1.DataSource=t;
+        }
+
+        private void hienDSKH()
+        {
+            DataTable t = getKh();
+            comboBox1.DisplayMember = "sHoTen";
+            comboBox1.DataSource=t;
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            hienKH();
+        }
+    }
+
+   
+}
